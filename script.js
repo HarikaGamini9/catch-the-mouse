@@ -19,6 +19,7 @@ window.onload = function () {
     // --- MOUSE ---
     const MOUSE_IMG_WIDTH = 30;
     const MOUSE_IMG_HEIGHT = 30;
+    const TOUCH_Y_OFFSET = 75; // << NEW: Pixels to offset mouse target above finger on touch
 
     // --- SNAKE ---
     const INITIAL_SNAKE_LENGTH = 30;
@@ -35,7 +36,7 @@ window.onload = function () {
     const SNAKE_OUTLINE_COLOR = 'black';
     const SNAKE_OUTLINE_WIDTH = 1;
 
-    const TAIL_TIP_SAME_COLOR_LENGTH = 3; // Number of segments at the very tail to match head color (e.g., 2-3)
+    const TAIL_TIP_SAME_COLOR_LENGTH = 3;
 
     const INITIAL_SNAKE_SPEED = 2.5;
     const SNAKE_SPEED_INCREASE_AMOUNT = 0.1;
@@ -46,7 +47,7 @@ window.onload = function () {
 
     // --- EGG ---
     const EGG_RADIUS = 10;
-    const EGG_COLOR = '#FFD700'; // Gold
+    const EGG_COLOR = '#FFB6C1'; // LightPink - a pastel egg color
     const POINTS_PER_EGG = 10;
 
     // --- GAME STATE ---
@@ -61,7 +62,7 @@ window.onload = function () {
     let mouseImageLoaded = false;
     mouseImage.onload = () => { mouseImageLoaded = true; console.log("Mouse image LOADED."); };
     mouseImage.onerror = () => { mouseImageLoaded = false; console.error("ERROR: Failed to load mouse image."); };
-    mouseImage.src = 'assets/mouse.png'; // Ensure this path is correct
+    mouseImage.src = 'assets/mouse.png';
 
     // --- GAME OBJECTS ---
     const mouse = { x: canvas.width / 2, y: canvas.height / 2 };
@@ -84,10 +85,10 @@ window.onload = function () {
         ctx.beginPath();
         ctx.arc(egg.x, egg.y, egg.radius, 0, Math.PI * 2);
         ctx.fillStyle = egg.color;
-        ctx.shadowColor = 'rgba(0,0,0,0.3)';
-        ctx.shadowBlur = 5;
-        ctx.shadowOffsetX = 2;
-        ctx.shadowOffsetY = 2;
+        ctx.shadowColor = 'rgba(0,0,0,0.2)'; // Softer shadow
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetX = 1;
+        ctx.shadowOffsetY = 1;
         ctx.fill();
         ctx.closePath();
         ctx.shadowColor = 'transparent';
@@ -149,24 +150,35 @@ window.onload = function () {
         event.preventDefault();
         const rect = canvas.getBoundingClientRect();
         let clientX, clientY;
-        if (event.touches) {
+
+        if (event.touches && event.touches.length > 0) { // Check event.touches.length
             clientX = event.touches[0].clientX;
             clientY = event.touches[0].clientY;
-        } else {
+        } else if (event.clientX !== undefined) { // Check if it's a mouse event
             clientX = event.clientX;
             clientY = event.clientY;
+        } else {
+            return; // No valid pointer data
         }
+
         let canvasX = (clientX - rect.left) * (canvas.width / rect.width);
         let canvasY = (clientY - rect.top) * (canvas.height / rect.height);
+
+        // << NEW: Apply Y-offset for touch events
+        if (event.touches) {
+            canvasY -= TOUCH_Y_OFFSET;
+        }
+
         mouse.x = Math.max(MOUSE_IMG_WIDTH / 2, Math.min(canvasX, canvas.width - MOUSE_IMG_WIDTH / 2));
         mouse.y = Math.max(MOUSE_IMG_HEIGHT / 2, Math.min(canvasY, canvas.height - MOUSE_IMG_HEIGHT / 2));
     }
+
     canvas.addEventListener('mousemove', handlePointerMove);
     canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
-    canvas.addEventListener('touchstart', handlePointerMove, { passive: false });
+    canvas.addEventListener('touchstart', handlePointerMove, { passive: false }); // Keep touchstart for initial positioning
 
     function clearCanvas() {
-        ctx.fillStyle = '#d3d3d3';
+        ctx.fillStyle = '#FFFACD'; // << CHANGED: Match new canvas background from CSS
         ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
@@ -176,7 +188,7 @@ window.onload = function () {
         } else {
             ctx.beginPath();
             ctx.arc(mouse.x, mouse.y, MOUSE_IMG_WIDTH / 2, 0, Math.PI * 2);
-            ctx.fillStyle = 'gray';
+            ctx.fillStyle = 'gray'; // Fallback color
             ctx.fill();
             ctx.closePath();
         }
@@ -297,7 +309,7 @@ window.onload = function () {
         if (distance > snake.speed) {
             moveX = (dx / distance) * snake.speed;
             moveY = (dy / distance) * snake.speed;
-        } else if (distance > 1) {
+        } else if (distance > 1) { // Avoid micro-movements if very close
             moveX = dx;
             moveY = dy;
         }
@@ -312,12 +324,14 @@ window.onload = function () {
         if (!snake.body || snake.body.length === 0) return;
         const head = snake.body[0];
         const headDisplayRadius = (snake.segmentDiameter * SNAKE_HEAD_SCALE) / 2;
-        const playerMouseRadius = MOUSE_IMG_WIDTH / 2;
+        const playerMouseRadius = MOUSE_IMG_WIDTH / 2; // Using mouse image dimensions for consistency
 
+        // Snake head collides with player's mouse
         const dxPlayer = head.x - mouse.x;
         const dyPlayer = head.y - mouse.y;
         const distancePlayer = Math.sqrt(dxPlayer * dxPlayer + dyPlayer * dyPlayer);
-        if (distancePlayer < headDisplayRadius + playerMouseRadius - (SNAKE_OUTLINE_WIDTH * 1.5)) {
+        // Adjusted collision threshold slightly
+        if (distancePlayer < headDisplayRadius + playerMouseRadius - (SNAKE_OUTLINE_WIDTH + 2) ) {
             gameOver = true;
             gameRunning = false;
             if (animationFrameId) {
@@ -332,6 +346,7 @@ window.onload = function () {
             return;
         }
 
+        // Player's mouse (at offset position) collects egg
         const dxEgg = mouse.x - egg.x;
         const dyEgg = mouse.y - egg.y;
         const distanceEgg = Math.sqrt(dxEgg * dxEgg + dyEgg * dyEgg);
@@ -352,7 +367,7 @@ window.onload = function () {
         updateSnake();
         drawRealisticSnake();
         drawEgg();
-        drawMouse();
+        drawMouse(); // Draw mouse at its (potentially offset) position
         checkCollisions();
         if (gameRunning && !gameOver) {
             animationFrameId = requestAnimationFrame(gameLoop);

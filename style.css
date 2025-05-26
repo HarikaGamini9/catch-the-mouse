@@ -5,19 +5,20 @@ body {
     justify-content: center;
     min-height: 100vh;
     margin: 0;
-    background-color: #333; /* Darker background for better contrast */
-    color: #f0f0f0;
+    background-color: #F0F8FF; /* Soft Pastel Blue (AliceBlue) */
+    color: #333333; /* Darker text for light background */
     font-family: Arial, sans-serif;
     overflow: hidden; /* Prevent scrollbars */
 }
 
 h1 {
     margin-bottom: 15px;
-    color: #f0f0f0;
+    color: #333333; /* Darker text */
 }
 
+/* Start and Game Over screens can retain their darker theme for contrast */
 #startScreen, #gameOverScreen {
-    display: flex; /* Use flex for centering content */
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -31,6 +32,7 @@ h1 {
     border-radius: 10px;
     text-align: center;
     z-index: 10;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Optional: subtle shadow for pop-ups */
 }
 
 #startScreen.hidden,
@@ -46,21 +48,20 @@ h1 {
 }
 
 #gameCanvas {
-    border: 3px solid #555;
-    background-color: #d3d3d3; /* Light gray canvas background */
-    cursor: none; /* Hide system cursor over canvas */
-    touch-action: none; /* Prevent default touch actions like pinch-zoom */
-    display: block; /* Remove extra space below canvas */
-    max-width: 95vw; /* Make canvas responsive */
+    border: 3px solid #B0C4DE; /* LightSteelBlue border - softer than #555 */
+    background-color: #FFFACD; /* Soft Pastel Yellow/Cream (LemonChiffon) */
+    cursor: none;
+    touch-action: none;
+    display: block;
+    max-width: 95vw;
     max-height: 75vh;
-    /* Maintain aspect ratio if you want, e.g., aspect-ratio: 800 / 600; */
-    /* If not using aspect-ratio, JS will set fixed width/height */
+    /* box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Optional: subtle shadow for canvas */
 }
 
 #scoreDisplay {
     font-size: 1.5rem;
-    color: #f0f0f0;
-    margin-bottom: 10px; /* Adjusted margin */
+    color: #333333; /* Darker text */
+    margin-bottom: 10px;
     font-weight: bold;
 }
 
@@ -68,13 +69,14 @@ h1 {
     padding: 12px 25px;
     font-size: 1.1em;
     cursor: pointer;
-    background-color: #4CAF50;
-    color: white;
+    background-color: #77DD77; /* Pastel Green */
+    color: white; /* Or a dark color like #333 if preferred for pastel buttons */
     border: none;
     border-radius: 5px;
     margin-top: 15px;
+    transition: background-color 0.2s ease; /* Smooth hover transition */
 }
 
 #startButton:hover, #restartButton:hover {
-    background-color: #45a049;
-}  
+    background-color: #5cb85c; /* Slightly darker pastel green on hover */
+}
