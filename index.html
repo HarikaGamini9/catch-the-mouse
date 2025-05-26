@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Snake Chases Mouse</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Snake Chases Mouse</h1>
+
+    <div id="startScreen">
+        <button id="startButton">Start Game</button>
+    </div>
+
+    <div id="gameArea" class="hidden">
+        <div id="scoreDisplay">Score: 0</div>
+        <canvas id="gameCanvas"></canvas>
+    </div>
+
+    <div id="gameOverScreen" class="hidden">
+        <h2>Game Over!</h2>
+        <p id="finalScore">Your Score: 0</p>
+        <button id="restartButton">Play Again</button>
+    </div>
+
+    <!-- Audio element for background music -->
+    <audio id="bgMusic" src="assets/background_music.mpeg" loop></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>  

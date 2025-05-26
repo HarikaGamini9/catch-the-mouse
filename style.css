@@ -1,0 +1,80 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #333; /* Darker background for better contrast */
+    color: #f0f0f0;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Prevent scrollbars */
+}
+
+h1 {
+    margin-bottom: 15px;
+    color: #f0f0f0;
+}
+
+#startScreen, #gameOverScreen {
+    display: flex; /* Use flex for centering content */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(40, 40, 40, 0.9);
+    color: white;
+    padding: 30px 40px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 10;
+}
+
+#startScreen.hidden,
+#gameArea.hidden,
+#gameOverScreen.hidden {
+    display: none;
+}
+
+#gameArea {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#gameCanvas {
+    border: 3px solid #555;
+    background-color: #d3d3d3; /* Light gray canvas background */
+    cursor: none; /* Hide system cursor over canvas */
+    touch-action: none; /* Prevent default touch actions like pinch-zoom */
+    display: block; /* Remove extra space below canvas */
+    max-width: 95vw; /* Make canvas responsive */
+    max-height: 75vh;
+    /* Maintain aspect ratio if you want, e.g., aspect-ratio: 800 / 600; */
+    /* If not using aspect-ratio, JS will set fixed width/height */
+}
+
+#scoreDisplay {
+    font-size: 1.5rem;
+    color: #f0f0f0;
+    margin-bottom: 10px; /* Adjusted margin */
+    font-weight: bold;
+}
+
+#startButton, #restartButton {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+#startButton:hover, #restartButton:hover {
+    background-color: #45a049;
+}  
