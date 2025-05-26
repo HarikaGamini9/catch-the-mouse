@@ -4,7 +4,6 @@ window.onload = function () {
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    // DOM Elements (same as before)
     const startScreen = document.getElementById('startScreen');
     const startButton = document.getElementById('startButton');
     const gameArea = document.getElementById('gameArea');
@@ -13,6 +12,7 @@ window.onload = function () {
     const scoreDisplay = document.getElementById('scoreDisplay');
     const finalScoreDisplay = document.getElementById('finalScore');
     const bgMusic = document.getElementById('bgMusic');
+
     const joystickArea = document.getElementById('joystickArea');
     const joystickBase = document.getElementById('joystickBase');
     const joystickKnob = document.getElementById('joystickKnob');
@@ -23,37 +23,36 @@ window.onload = function () {
     const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
     console.log(`isTouchDevice: ${isTouchDevice}`);
 
-    // Player Controlled Mouse/Target
     const MOUSE_IMG_WIDTH = 30;
     const MOUSE_IMG_HEIGHT = 30;
 
-    // --- JOYSTICK (same as before) ---
+    // --- JOYSTICK ---
     let joystickActive = false; let joystickBaseRect; let joystickKnobRadius; let joystickMaxDist;
     let joystickDX = 0; let joystickDY = 0;
-    const MOUSE_SPEED_FROM_JOYSTICK = 3.0;
-    const JOYSTICK_DEADZONE = 0.1;
+    const MOUSE_SPEED_FROM_JOYSTICK = 2.0; // Tuned for better control
+    const JOYSTICK_DEADZONE = 0.15;         // Tuned for less jitter
 
     // --- SNAKE ---
-    const INITIAL_SNAKE_LENGTH = 15; // Start a bit shorter for classic feel
+    const INITIAL_SNAKE_LENGTH = 15;
     const SNAKE_SEGMENT_DIAMETER = 12;
     const SNAKE_HEAD_SCALE = 1.25;
-    const SNAKE_TAIL_MIN_SCALE = 0.35; // Still used for visual tapering if desired
+    const SNAKE_TAIL_MIN_SCALE = 0.35;
     const SNAKE_BASE_COLOR = '#2e8b57'; const SNAKE_BODY_HIGHLIGHT_COLOR = '#66CDAA'; const SNAKE_EXTREMITY_HIGHLIGHT_COLOR = '#7FFFD4';
     const SNAKE_OUTLINE_COLOR = 'black'; const SNAKE_OUTLINE_WIDTH = 1; const TAIL_TIP_SAME_COLOR_LENGTH = 3;
-    const INITIAL_SNAKE_SPEED = 3.0; // Snake head movement speed
+    const INITIAL_SNAKE_SPEED = 3.0;
     const SNAKE_SPEED_INCREASE_AMOUNT = 0.1; const SNAKE_SPEED_MAX = 5.0;
-    const SNAKE_GROWTH_AMOUNT_TIME = 1; // How much maxLength increases over time
+    const SNAKE_GROWTH_AMOUNT_TIME = 1;
     const DIFFICULTY_INCREASE_INTERVAL = 8000;
 
     // --- CHEESE ---
     const CHEESE_WIDTH = 25; const CHEESE_HEIGHT = 25;
     const POINTS_PER_CHEESE = 10;
-    const SNAKE_GROWTH_PER_CHEESE = 3; // How many segments snake's maxLength increases by eating cheese
+    const SNAKE_GROWTH_PER_CHEESE = 3;
 
-    // --- GAME STATE (same as before) ---
+    // --- GAME STATE ---
     let gameOver = false; let score = 0; let difficultyTimer; let gameRunning = false; let animationFrameId;
 
-    // --- ASSETS (same as before) ---
+    // --- ASSETS ---
     const mouseImage = new Image(); let mouseImageLoaded = false;
     mouseImage.onload = () => { mouseImageLoaded = true; };
     mouseImage.onerror = () => { console.error("ERROR: Failed to load mouse image."); };
@@ -66,23 +65,19 @@ window.onload = function () {
 
     // --- GAME OBJECTS ---
     const mouse = { x: canvas.width / 4, y: canvas.height / 2 };
-    const snake = {
-        body: [], // Array of {x, y} objects
-        speed: INITIAL_SNAKE_SPEED,
-        currentMaxLength: INITIAL_SNAKE_LENGTH,
-    };
+    const snake = { body: [], speed: INITIAL_SNAKE_SPEED, currentMaxLength: INITIAL_SNAKE_LENGTH, };
     const cheese = { x: 0, y: 0, width: CHEESE_WIDTH, height: CHEESE_HEIGHT };
 
-    // --- JOYSTICK FUNCTIONS (no changes needed) ---
-    function initJoystick() { if (!isTouchDevice) { joystickArea.classList.add('hidden'); return; } if (!joystickKnob || !joystickBase || !joystickArea) { return; } joystickKnob.style.transform = `translate(0px, 0px)`; joystickBase.addEventListener('touchstart', handleJoystickStart, { passive: false }); window.addEventListener('touchmove', handleJoystickMove, { passive: false }); window.addEventListener('touchend', handleJoystickEnd, { passive: false }); window.addEventListener('touchcancel', handleJoystickEnd, { passive: false }); }
+
+    // --- JOYSTICK FUNCTIONS ---
+    function initJoystick() { if (!isTouchDevice) { joystickArea.classList.add('hidden'); return; } if (!joystickKnob || !joystickBase || !joystickArea) { console.error("initJoystick: Joystick HTML elements not found!"); return; } joystickKnob.style.transform = `translate(0px, 0px)`; joystickBase.addEventListener('touchstart', handleJoystickStart, { passive: false }); window.addEventListener('touchmove', handleJoystickMove, { passive: false }); window.addEventListener('touchend', handleJoystickEnd, { passive: false }); window.addEventListener('touchcancel', handleJoystickEnd, { passive: false }); }
     function calculateJoystickDimensions() { if (!isTouchDevice || !joystickArea || joystickArea.classList.contains('hidden') || !joystickBase || !joystickKnob) { return; } joystickBaseRect = joystickBase.getBoundingClientRect(); joystickKnobRadius = joystickKnob.offsetWidth / 2; joystickMaxDist = joystickBase.offsetWidth / 2 - joystickKnobRadius; if (joystickBaseRect.width === 0 || joystickKnobRadius === 0 || joystickMaxDist < 0) { console.error("calculateJoystickDimensions: Invalid joystick dimensions!"); } }
     function handleJoystickStart(event) { if (!gameRunning || gameOver || !isTouchDevice || !joystickBase || !joystickKnob) return; const touch = event.touches[0]; if (joystickBase.contains(touch.target)) { event.preventDefault(); joystickActive = true; calculateJoystickDimensions(); if (!joystickBaseRect || joystickBaseRect.width === 0) { joystickActive = false; return; } updateJoystickKnob(touch.clientX, touch.clientY); } }
     function handleJoystickMove(event) { if (!joystickActive || !gameRunning || gameOver || !isTouchDevice) return; event.preventDefault(); updateJoystickKnob(event.touches[0].clientX, event.touches[0].clientY); }
     function updateJoystickKnob(clientX, clientY) { if (!joystickBaseRect || joystickBaseRect.width === 0 || joystickMaxDist === undefined) return; const baseXCenter = joystickBaseRect.left + joystickBaseRect.width / 2; const baseYCenter = joystickBaseRect.top + joystickBaseRect.height / 2; let dx = clientX - baseXCenter; let dy = clientY - baseYCenter; const distance = Math.sqrt(dx * dx + dy * dy); if (distance > joystickMaxDist) { dx = (dx / distance) * joystickMaxDist; dy = (dy / distance) * joystickMaxDist; } joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`; if (joystickMaxDist > 0) { joystickDX = dx / joystickMaxDist; joystickDY = dy / joystickMaxDist; } else { joystickDX = 0; joystickDY = 0; } }
     function handleJoystickEnd(event) { if (!joystickActive || !isTouchDevice) return; joystickActive = false; joystickDX = 0; joystickDY = 0; if (joystickKnob) joystickKnob.style.transform = `translate(0px, 0px)`; }
 
-
-    // --- GAME ITEM FUNCTIONS (no changes needed) ---
+    // --- GAME ITEM FUNCTIONS ---
     function spawnCheese() { const padding = Math.max(cheese.width, cheese.height) + 20; cheese.x = Math.random() * (canvas.width - padding * 2) + padding; cheese.y = Math.random() * (canvas.height - padding * 2) + padding; }
     function drawCheese() { if (cheeseImageLoaded && cheeseImage.naturalWidth > 0) { ctx.drawImage(cheeseImage, cheese.x - cheese.width / 2, cheese.y - cheese.height / 2, cheese.width, cheese.height); } else { ctx.beginPath(); ctx.rect(cheese.x - cheese.width / 2, cheese.y - cheese.height / 2, cheese.width, cheese.height); ctx.fillStyle = '#FFD700'; ctx.fill(); ctx.closePath(); } }
 
@@ -98,8 +93,6 @@ window.onload = function () {
         snake.speed = INITIAL_SNAKE_SPEED;
         snake.body = [];
         const startX = canvas.width * 0.7; const startY = canvas.height / 2;
-        // Initialize snake with segments slightly spaced based on diameter for a classic look
-        // The actual overlap/spacing in motion will depend on snake.speed vs segment size.
         for (let i = 0; i < snake.currentMaxLength; i++) {
             snake.body.push({ x: startX - i * (SNAKE_SEGMENT_DIAMETER * 0.7), y: startY });
         }
@@ -119,7 +112,7 @@ window.onload = function () {
 
     startButton.addEventListener('click', startGameLogic); restartButton.addEventListener('click', startGameLogic);
 
-    // --- INPUT & DRAWING (drawRealisticSnake is main drawing, updateMouseFromJoystick is input) ---
+    // --- INPUT & DRAWING ---
     function handleCanvasDirectInteraction(event) { if (isTouchDevice) return; if (!gameRunning || gameOver) return; const rect = canvas.getBoundingClientRect(); if (event.clientX === undefined || event.clientY === undefined) return; let canvasX = (event.clientX - rect.left) * (canvas.width / rect.width); let canvasY = (event.clientY - rect.top) * (canvas.height / rect.height); mouse.x = Math.max(MOUSE_IMG_WIDTH / 2, Math.min(canvasX, canvas.width - MOUSE_IMG_WIDTH / 2)); mouse.y = Math.max(MOUSE_IMG_HEIGHT / 2, Math.min(canvasY, canvas.height - MOUSE_IMG_HEIGHT / 2)); }
     canvas.addEventListener('mousemove', handleCanvasDirectInteraction);
     function clearCanvas() { ctx.fillStyle = '#FFFACD'; ctx.fillRect(0, 0, canvas.width, canvas.height); }
@@ -132,61 +125,43 @@ window.onload = function () {
         let currentJoystickDX = joystickDX; let currentJoystickDY = joystickDY;
         const magnitude = Math.sqrt(currentJoystickDX * currentJoystickDX + currentJoystickDY * currentJoystickDY);
         if (magnitude < JOYSTICK_DEADZONE) { currentJoystickDX = 0; currentJoystickDY = 0; }
+        
         if (currentJoystickDX !== 0 || currentJoystickDY !== 0) {
-            mouse.x += currentJoystickDX * MOUSE_SPEED_FROM_JOYSTICK;
-            mouse.y += currentJoystickDY * MOUSE_SPEED_FROM_JOYSTICK;
+            let deltaX = currentJoystickDX * MOUSE_SPEED_FROM_JOYSTICK;
+            let deltaY = currentJoystickDY * MOUSE_SPEED_FROM_JOYSTICK;
+            mouse.x += deltaX; mouse.y += deltaY;
             mouse.x = Math.max(MOUSE_IMG_WIDTH / 2, Math.min(mouse.x, canvas.width - MOUSE_IMG_WIDTH / 2));
             mouse.y = Math.max(MOUSE_IMG_HEIGHT / 2, Math.min(mouse.y, canvas.height - MOUSE_IMG_HEIGHT / 2));
         }
     }
 
-    function updateSnake() { // << REVERTED TO CLASSIC SNAKE MOVEMENT
-        if (gameOver || !gameRunning || !snake.body) return; // Allow empty body for initialization
-
+    function updateSnake() {
+        if (gameOver || !gameRunning || !snake.body) return;
         let newHeadX, newHeadY;
-
-        if (snake.body.length === 0) { // Initial placement if body is empty (should be handled by startGameLogic)
-            newHeadX = canvas.width / 2;
-            newHeadY = canvas.height / 2;
-        } else {
+        if (snake.body.length === 0) { newHeadX = canvas.width / 2; newHeadY = canvas.height / 2; }
+        else {
             const head = snake.body[0];
-            const dxToMouse = mouse.x - head.x;
-            const dyToMouse = mouse.y - head.y;
+            const dxToMouse = mouse.x - head.x; const dyToMouse = mouse.y - head.y;
             const distToMouse = Math.sqrt(dxToMouse * dxToMouse + dyToMouse * dyToMouse);
-
             let moveX = 0, moveY = 0;
-            if (distToMouse > snake.speed) {
-                moveX = (dxToMouse / distToMouse) * snake.speed;
-                moveY = (dyToMouse / distToMouse) * snake.speed;
-            } else if (distToMouse > 0.1) { // Avoid division by zero or tiny movements
-                moveX = dxToMouse;
-                moveY = dyToMouse;
-            }
-            newHeadX = head.x + moveX;
-            newHeadY = head.y + moveY;
+            if (distToMouse > snake.speed) { moveX = (dxToMouse / distToMouse) * snake.speed; moveY = (dyToMouse / distToMouse) * snake.speed; }
+            else if (distToMouse > 0.1) { moveX = dxToMouse; moveY = dyToMouse; }
+            newHeadX = head.x + moveX; newHeadY = head.y + moveY;
         }
-
-        // Add new head
         snake.body.unshift({ x: newHeadX, y: newHeadY });
-
-        // Remove tail if snake is too long
-        while (snake.body.length > snake.currentMaxLength) {
-            snake.body.pop();
-        }
+        while (snake.body.length > snake.currentMaxLength) { snake.body.pop(); }
     }
 
-    function checkCollisions() { // No change needed here for normal snake movement
+    function checkCollisions() {
         if (!snake.body || snake.body.length === 0) return;
         const head = snake.body[0];
         const headDisplayRadius = (SNAKE_SEGMENT_DIAMETER * SNAKE_HEAD_SCALE) / 2;
         const playerMouseRadius = MOUSE_IMG_WIDTH / 2;
-
         const dxPlayer = head.x - mouse.x; const dyPlayer = head.y - mouse.y;
         const distancePlayer = Math.sqrt(dxPlayer * dxPlayer + dyPlayer * dyPlayer);
         if (distancePlayer < headDisplayRadius + playerMouseRadius - (SNAKE_OUTLINE_WIDTH + 2) ) {
             gameOver = true; gameRunning = false; if (animationFrameId) { cancelAnimationFrame(animationFrameId); animationFrameId = null; } gameArea.classList.add('hidden'); gameOverScreen.classList.remove('hidden'); if (isTouchDevice) joystickArea.classList.add('hidden'); finalScoreDisplay.textContent = `Your Score: ${score}`; clearInterval(difficultyTimer); bgMusic.pause(); return;
         }
-
         const cheeseCenterX = cheese.x; const cheeseCenterY = cheese.y;
         const dxCheese = mouse.x - cheeseCenterX; const dyCheese = mouse.y - cheeseCenterY;
         const distanceCheese = Math.sqrt(dxCheese*dxCheese + dyCheese*dyCheese);
@@ -203,10 +178,9 @@ window.onload = function () {
         if (gameOver || !gameRunning) {
             if (animationFrameId) cancelAnimationFrame(animationFrameId); animationFrameId = null; return;
         }
-        // Removed gameTime++ as it's not needed for classic snake
         clearCanvas();
         if (isTouchDevice) { updateMouseFromJoystick(); }
-        updateSnake(); // Now uses classic movement
+        updateSnake();
         drawRealisticSnake(); drawCheese(); drawMouse();
         checkCollisions();
         if (gameRunning && !gameOver) {
