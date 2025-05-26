@@ -1,4 +1,89 @@
-/* ... (previous CSS styles) ... */
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #F0F8FF; /* Soft Pastel Blue (AliceBlue) */
+    color: #333333; /* Darker text for light background */
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Prevent scrollbars */
+}
+
+h1 {
+    margin-bottom: 15px;
+    color: #333333; /* Darker text */
+}
+
+#startScreen, #gameOverScreen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(40, 40, 40, 0.9);
+    color: white;
+    padding: 30px 40px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 100; /* High z-index for pop-ups */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+#startScreen.hidden,
+#gameArea.hidden,
+#gameOverScreen.hidden,
+#joystickArea.hidden {
+    display: none !important; /* Use !important to ensure it overrides other display properties */
+}
+
+#gameArea {
+    position: relative; /* For absolute positioning of scoreDisplay */
+    /* Dimensions will be implicitly set by canvas, or you can set them explicitly if needed */
+    /* width: 800px; */ /* Example if canvas width is fixed */
+    /* height: 600px; */ /* Example if canvas height is fixed */
+    /* The body flex rules will center this block */
+}
+
+#gameCanvas {
+    border: 3px solid #B0C4DE; /* LightSteelBlue border */
+    background-color: #FFFACD; /* Soft Pastel Yellow/Cream (LemonChiffon) */
+    cursor: none;
+    touch-action: none; /* Prevent default touch actions like pinch-zoom */
+    display: block; /* Remove extra space below canvas */
+    max-width: 95vw; /* Make canvas responsive */
+    max-height: 75vh;
+    /* JS will set fixed width/height, but these max values help with layout */
+}
+
+#scoreDisplay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    font-size: 1.5rem;
+    color: #333333;
+    font-weight: bold;
+    z-index: 50; /* Above canvas, below pop-ups */
+    background-color: rgba(240, 248, 255, 0.75); /* Semi-transparent AliceBlue */
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+#startButton, #restartButton {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    cursor: pointer;
+    background-color: #77DD77; /* Pastel Green */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 15px;
+    transition: background-color 0.2s ease;
+}
 
 #startButton:hover, #restartButton:hover {
     background-color: #5cb85c; /* Slightly darker pastel green on hover */
@@ -6,30 +91,22 @@
 
 /* --- JOYSTICK STYLES --- */
 #joystickArea {
-    position: fixed; /* Fixed position on the screen */
-    bottom: 30px;    /* Distance from bottom */
-    left: 50%;       /* Center horizontally */
-    transform: translateX(-50%); /* Adjust for centering */
-    z-index: 20;     /* Ensure it's above other elements like canvas */
-    display: flex;   /* For centering the base */
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 90; /* Below pop-ups, above game elements if necessary */
+    display: flex; /* Default display for when not hidden */
     justify-content: center;
     align-items: center;
-    /* background-color: rgba(0,0,0,0.1); /* Optional: for debugging area */
-    /* width: 200px; /* Optional: for debugging area */
-    /* height: 200px; /* Optional: for debugging area */
 }
-
-#joystickArea.hidden {
-    display: none !important; /* Important to override flex if joystickArea has display:flex */
-}
-
 
 #joystickBase {
-    width: 120px;  /* Size of the joystick base */
-    height: 120px; /* Size of the joystick base */
-    background-color: rgba(100, 100, 100, 0.3); /* Semi-transparent gray */
-    border-radius: 50%; /* Make it circular */
-    position: relative; /* For positioning the knob inside */
+    width: 120px;
+    height: 120px;
+    background-color: rgba(100, 100, 100, 0.3);
+    border-radius: 50%;
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -37,11 +114,11 @@
 }
 
 #joystickKnob {
-    width: 50px;   /* Size of the knob */
-    height: 50px;  /* Size of the knob */
-    background-color: rgba(200, 200, 200, 0.7); /* Lighter gray for knob */
-    border-radius: 50%; /* Make it circular */
-    position: absolute; /* Positioned relative to the base */
+    width: 50px;
+    height: 50px;
+    background-color: rgba(200, 200, 200, 0.7);
+    border-radius: 50%;
+    position: absolute;
     cursor: grab;
     border: 1px solid rgba(50, 50, 50, 0.5);
 }
