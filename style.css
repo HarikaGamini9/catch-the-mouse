@@ -1,82 +1,51 @@
-body {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 100vh;
-    margin: 0;
-    background-color: #F0F8FF; /* Soft Pastel Blue (AliceBlue) */
-    color: #333333; /* Darker text for light background */
-    font-family: Arial, sans-serif;
-    overflow: hidden; /* Prevent scrollbars */
-}
-
-h1 {
-    margin-bottom: 15px;
-    color: #333333; /* Darker text */
-}
-
-/* Start and Game Over screens can retain their darker theme for contrast */
-#startScreen, #gameOverScreen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(40, 40, 40, 0.9);
-    color: white;
-    padding: 30px 40px;
-    border-radius: 10px;
-    text-align: center;
-    z-index: 10;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2); /* Optional: subtle shadow for pop-ups */
-}
-
-#startScreen.hidden,
-#gameArea.hidden,
-#gameOverScreen.hidden {
-    display: none;
-}
-
-#gameArea {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-#gameCanvas {
-    border: 3px solid #B0C4DE; /* LightSteelBlue border - softer than #555 */
-    background-color: #FFFACD; /* Soft Pastel Yellow/Cream (LemonChiffon) */
-    cursor: none;
-    touch-action: none;
-    display: block;
-    max-width: 95vw;
-    max-height: 75vh;
-    /* box-shadow: 0 0 10px rgba(0,0,0,0.1); /* Optional: subtle shadow for canvas */
-}
-
-#scoreDisplay {
-    font-size: 1.5rem;
-    color: #333333; /* Darker text */
-    margin-bottom: 10px;
-    font-weight: bold;
-}
-
-#startButton, #restartButton {
-    padding: 12px 25px;
-    font-size: 1.1em;
-    cursor: pointer;
-    background-color: #77DD77; /* Pastel Green */
-    color: white; /* Or a dark color like #333 if preferred for pastel buttons */
-    border: none;
-    border-radius: 5px;
-    margin-top: 15px;
-    transition: background-color 0.2s ease; /* Smooth hover transition */
-}
+/* ... (previous CSS styles) ... */
 
 #startButton:hover, #restartButton:hover {
     background-color: #5cb85c; /* Slightly darker pastel green on hover */
+}
+
+/* --- JOYSTICK STYLES --- */
+#joystickArea {
+    position: fixed; /* Fixed position on the screen */
+    bottom: 30px;    /* Distance from bottom */
+    left: 50%;       /* Center horizontally */
+    transform: translateX(-50%); /* Adjust for centering */
+    z-index: 20;     /* Ensure it's above other elements like canvas */
+    display: flex;   /* For centering the base */
+    justify-content: center;
+    align-items: center;
+    /* background-color: rgba(0,0,0,0.1); /* Optional: for debugging area */
+    /* width: 200px; /* Optional: for debugging area */
+    /* height: 200px; /* Optional: for debugging area */
+}
+
+#joystickArea.hidden {
+    display: none !important; /* Important to override flex if joystickArea has display:flex */
+}
+
+
+#joystickBase {
+    width: 120px;  /* Size of the joystick base */
+    height: 120px; /* Size of the joystick base */
+    background-color: rgba(100, 100, 100, 0.3); /* Semi-transparent gray */
+    border-radius: 50%; /* Make it circular */
+    position: relative; /* For positioning the knob inside */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+#joystickKnob {
+    width: 50px;   /* Size of the knob */
+    height: 50px;  /* Size of the knob */
+    background-color: rgba(200, 200, 200, 0.7); /* Lighter gray for knob */
+    border-radius: 50%; /* Make it circular */
+    position: absolute; /* Positioned relative to the base */
+    cursor: grab;
+    border: 1px solid rgba(50, 50, 50, 0.5);
+}
+
+#joystickKnob:active {
+    cursor: grabbing;
 }
