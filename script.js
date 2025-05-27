@@ -30,7 +30,7 @@ window.onload = function () {
     let joystickActive = false; let joystickBaseRect; let joystickKnobRadius; let joystickMaxDist;
     let joystickDX = 0; let joystickDY = 0;
     // !!!!! VALUE CHANGED HERE TO INCREASE JOYSTICK SPEED !!!!!
-    const MOUSE_SPEED_FROM_JOYSTICK = 4.0; // Was 3.0. Increase for faster joystick movement.
+    const MOUSE_SPEED_FROM_JOYSTICK = 3.5 ; // Was 3.0. Increase for faster joystick movement.
     const JOYSTICK_DEADZONE = 0.15;
 
     // --- SNAKE ---
