@@ -29,7 +29,8 @@ window.onload = function () {
     // --- JOYSTICK ---
     let joystickActive = false; let joystickBaseRect; let joystickKnobRadius; let joystickMaxDist;
     let joystickDX = 0; let joystickDY = 0;
-    const MOUSE_SPEED_FROM_JOYSTICK = 3.0; // INCREASED for better joystick responsiveness
+    // !!!!! VALUE CHANGED HERE TO INCREASE JOYSTICK SPEED !!!!!
+    const MOUSE_SPEED_FROM_JOYSTICK = 5.0; // Was 3.0. Increase for faster joystick movement.
     const JOYSTICK_DEADZONE = 0.15;
 
     // --- SNAKE ---
@@ -39,9 +40,9 @@ window.onload = function () {
     const SNAKE_TAIL_MIN_SCALE = 0.35;
     const SNAKE_BASE_COLOR = '#2e8b57'; const SNAKE_BODY_HIGHLIGHT_COLOR = '#66CDAA'; const SNAKE_EXTREMITY_HIGHLIGHT_COLOR = '#7FFFD4';
     const SNAKE_OUTLINE_COLOR = 'black'; const SNAKE_OUTLINE_WIDTH = 1; const TAIL_TIP_SAME_COLOR_LENGTH = 3;
-    const INITIAL_SNAKE_SPEED = 2.0; // REDUCED for slower snake start
+    const INITIAL_SNAKE_SPEED = 2.0;
     const SNAKE_SPEED_INCREASE_AMOUNT = 0.1;
-    const SNAKE_SPEED_MAX = 4.0;     // REDUCED for lower max snake speed
+    const SNAKE_SPEED_MAX = 4.0;
     const SNAKE_GROWTH_AMOUNT_TIME = 1;
     const DIFFICULTY_INCREASE_INTERVAL = 8000;
 
@@ -91,7 +92,7 @@ window.onload = function () {
         bgMusic.currentTime = 0; bgMusic.play().catch(e => console.warn("Music autoplay failed", e));
         
         snake.currentMaxLength = INITIAL_SNAKE_LENGTH;
-        snake.speed = INITIAL_SNAKE_SPEED; // Apply initial speed
+        snake.speed = INITIAL_SNAKE_SPEED;
         snake.body = [];
         const startX = canvas.width * 0.7; const startY = canvas.height / 2;
         for (let i = 0; i < snake.currentMaxLength; i++) {
